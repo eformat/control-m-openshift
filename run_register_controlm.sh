@@ -25,10 +25,18 @@ ctm env set ${CTM_ENV}
 ctm session login -e workbench
 
 echo run and register controlm agent [$ALIAS] with controlm [$CTM_SERVER], environment [$CTM_ENV] 
-ctm provision setup $CTM_SERVER $ALIAS
+#ctm provision setup $CTM_SERVER $ALIAS $CTM_AGENT_PORT
 
-echo add or create a controlm hostgroup [$CTM_HOSTGROUP] with controlm agent [$ALIAS]
-ctm config server:hostgroup:agent::add $CTM_SERVER $CTM_HOSTGROUP $ALIAS 
+# FIXME - provision fixed agent comms for testing - need hostgroup for kubernetes !!
+cat <<EOF > /tmp/provision.json
+{
+    "connectionInitiator": "AgentToServer"
+}
+EOF
+ctm provision setup $CTM_SERVER $ALIAS $CTM_AGENT_PORT -f /tmp/provision.json
+
+#echo add or create a controlm hostgroup [$CTM_HOSTGROUP] with controlm agent [$ALIAS]
+#ctm config server:hostgroup:agent::add $CTM_SERVER $CTM_HOSTGROUP $ALIAS 
 
 # loop forever
 while true; do echo woke up && sleep 120; done

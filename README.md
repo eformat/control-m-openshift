@@ -32,6 +32,8 @@ After the Workbench is up and running in VirtualBox, browse to
 
 to get started.
 
+Add 7705 + 7751 NAT Port-Forwarding Rules for Agent/Server communication for Testing.
+
 ### Create Container Image Locally
 
 #### Install control-m cli
@@ -106,7 +108,7 @@ $ ctm config  servers::get
 ]
 ```
 
-Run agent container locally in foregorund to test it:
+Run agent container locally in foreground to test it:
 
 ```
 docker run --rm --net host -e CTM_ENV=workbench -e CTM_SERVER=workbench -e CTM_HOSTGROUP=appgroup01 controlm:latest
@@ -156,6 +158,11 @@ add or create a controlm hostgroup [appgroup01] with controlm agent [virt:cb8507
     }
   ]
 }
+```
+
+Run on the background
+```
+docker run -d --net host -v ~/.kube:/usr/src/app/.kube:z -e CTM_ENV=workbench -e CTM_SERVER=workbench -e CTM_HOSTGROUP=appgroup01 controlm:latest
 ```
 
 #### Push to your registry
@@ -339,3 +346,4 @@ sh-4.2$ ctm session login -e workbench
 - https://docs.bmc.com/docs/display/public/ctmapitutorials/Docker+Image+with+embedded+Control-M+Agent
 - https://docs.bmc.com/docs/automation-api/918/tutorials-setting-up-the-prerequisites-783053210.html#Tutorials-Settinguptheprerequisites-set_verify
 - https://www.redhat.com/en/blog/importing-vms-kvm-virt-v2v
+- https://www.youtube.com/watch?v=i8AHRaUN0GA

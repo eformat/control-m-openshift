@@ -2,11 +2,15 @@
 # Control-M/Agent in a docker container in user-defined network
 # The docker host is an AWS Linux machine
 #-----------------------------------------------------------------------
-
 FROM centos:7
 
 ARG CTMHOST
 ARG CTMENV
+
+USER root
+
+# install python
+RUN yum -y install python3 python-pip python-urllib3
 
 # install basic packages
 RUN yum -y update \
@@ -70,7 +74,12 @@ RUN cp /tmp/run_register_controlm.sh /home/ec2-user \
 	&& chmod +x decommission_controlm.sh
 
 # copy sample job flow to container
-COPY MultiContainerSampleFlow.json /home/ec2-user/
+COPY pythonimage/requirements.txt /home/ec2-user/
+RUN pip3 install --user --no-cache-dir -r /home/ec2-user/requirements.txt
+# FIXME put on separate volume - for now
+COPY pythonimage/runJob.py /home/ec2-user/
+COPY pythonimage/srv01-job.yaml /home/ec2-user/
+#COPY MultiContainerSampleFlow.json /home/ec2-user/
 
 EXPOSE 7000-8000
 EXPOSE 22

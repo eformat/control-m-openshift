@@ -1,0 +1,21 @@
+{
+    "Defaults" : {
+        "Application" : "SampleJob",
+        "RunAs" : "ec2-user",
+        "Host" : "virt:0f1010c33d70"
+    },
+
+    "SampleJobFlow": {
+        "Type": "Folder",
+        "Comment" : "jobs as code",
+
+        "Job1": {
+            "Type": "Job:Command",
+            "Command": "echo Job 1 starting"
+        },
+		
+		"Job2": {"Type": "Job:Command", "Command": "sleep 5"},
+
+        "Flow1": {"Type": "Flow", "Sequence": ["Job1", "Job2"]}
+    }
+}

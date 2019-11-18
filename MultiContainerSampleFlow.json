@@ -2,7 +2,6 @@
     "Defaults" : {
         "Application" : "SampleApp",
         "SubApplication" : "SampleSubApp",
-		"SiteStandard" : "WideOpen",
         "RunAs" : "ec2-user",
         "Host" : "appgroup01"
     },
