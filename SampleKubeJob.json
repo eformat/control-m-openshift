@@ -2,7 +2,7 @@
     "Defaults" : {
         "Application" : "SampleKubeJob",
         "RunAs" : "ec2-user",
-        "Host" : "virt:fcdb3008317b"
+        "Host" : "controlm-agent-dv6cs:"
     },
 
     "SampleKubeJobFlow": {
@@ -14,7 +14,7 @@
             "Command": "echo Job 1 starting"
         },
 		
-		"Job2": {"Type": "Job:Command", "Command": "python3 runJob.py -j srv01-job"},
+		"Job2": {"Type": "Job:Command", "Command": "python3 runJob.py -j srv01-job -n controlm-agent"},
 
         "Flow1": {"Type": "Flow", "Sequence": ["Job1", "Job2"]}
     }

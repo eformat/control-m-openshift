@@ -14,9 +14,10 @@ stime = 15				# Default sleep interval for status check
 def main(argv):
    global kJobname, kNameSpace, podName
    kJobname = ''
+   kNameSpace = ''
    outputfile = ''
    try:
-     opts, args = getopt.getopt(argv,"hj:",["jname="])
+     opts, args = getopt.getopt(argv,"hj:n:",["jname=", "namespace="])
    except getopt.GetoptError:
      print("runjob.py -j <jobname>")
      sys.exit(2)
@@ -26,22 +27,24 @@ def main(argv):
         sys.exit()
      elif opt in ("-j", "--jname"):
         kJobname = arg
+     elif opt in ("-n", "--namespace"):
+        kNameSpace = arg
 
-   print("Processing job: " + kJobname)
-   startJob(kJobname)
+   print("Processing job: " + kJobname + " namespace: " + kNameSpace)
+   startJob(kJobname, kNameSpace)
    
    signal.signal(signal.SIGTERM, termSignal)
    
-   jobStatus = status(kJobname)
+   jobStatus = status(kJobname, kNameSpace)
    
-   podName = listPod(kJobname)
-   getLog(podName)
+   podName = listPod(kJobname, kNameSpace)
+   getLog(podName, kNameSpace)
       
-   deleteJob(kJobname, podName)
+   deleteJob(kJobname, podName, kNameSpace)
    
    quit(0)
    
-def startJob(kJobname):
+def startJob(kJobname, kNameSpace):
    yaml = kJobname + ".yaml"
    try:
       config.load_incluster_config()
@@ -60,7 +63,7 @@ def startJob(kJobname):
    print("Job {0} created".format(kJob.metadata.name))
    return
    
-def status(kJobname):
+def status(kJobname, kNameSpace):
    jobStatus = "Success"
    jobRunning = "Running"
    podLabelSelector = 'job-name=' + kJobname
@@ -90,7 +93,7 @@ def status(kJobname):
    print("Job ended execution")
    return jobStatus
    
-def listPod(kJobname):
+def listPod(kJobname, kNameSpace):
    try:
       config.load_incluster_config()
    except:
@@ -106,7 +109,7 @@ def listPod(kJobname):
    return podName
 
   
-def getLog(podName):
+def getLog(podName, kNameSpace):
    try:
       config.load_incluster_config()
    except:
@@ -117,7 +120,7 @@ def getLog(podName):
    print(ret)
    return
    
-def deleteJob(kJobname, podName):
+def deleteJob(kJobname, podName, kNameSpace):
    try:
       config.load_incluster_config()
    except:

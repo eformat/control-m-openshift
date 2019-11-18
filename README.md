@@ -82,7 +82,7 @@ https://github.com/eformat/automation-api-community-solutions/tree/master/3-infr
 #### Build container
 
 ```
-docker build --tag=controlm --network=host --build-arg CTMHOST=localhost --build-arg CTMENV=workbench .
+make docker-build
 ```
 
 Note:
@@ -117,8 +117,8 @@ docker run --rm --net host -e CTM_ENV=workbench -e CTM_SERVER=workbench -e CTM_H
 Successful output looks like this:
 
 ```
-$ docker run --rm --net host -e CTM_ENV=workbench -e CTM_SERVER=workbench -e CTM_HOSTGROUP=appgroup01 controlm:latest
-Container ID is cb850779b6a9 and Alias is virt:cb850779b6a9
+$ docker run --rm --net host -v ~/.kube:/home/ec2-user/.kube:z -e CTM_ENV=workbench -e CTM_SERVER=workbench -e CTM_HOSTGROUP=appgroup01 controlm:latest
+Container ID is fcdb3008317b and Alias is virt:fcdb3008317b
 current environment: workbench
 environments: {
   "workbench": {
@@ -128,48 +128,60 @@ environments: {
 }
 {
   "username": "workbench",
-  "token": "EA6D60F0E867E1088F734BFD4399DFD3F7DB27726203063D9A1E6DFC4EA28D74513B92F92FBD5AD12EA754982570EB2778361749C7BB13E5ADD32DB45E896C99",
+  "token": "BA3FCFBB4AEE74AA1708DCBDACB6053617FE74C1CEAB89E34AD5C30DB97A39B8659C4E2CBD7C503C61FE6A2C53D5339CDC4E555A846ABFB60AAB1871771F1070",
   "version": "9.18.3"
 }
-run and register controlm agent [virt:cb850779b6a9] with controlm [workbench], environment [workbench]
+run and register controlm agent [virt:fcdb3008317b] with controlm [workbench], environment [workbench]
 debug:   Locating java command
 info:    Located java at:/bin/java
 info:    downloading https://localhost:8443/automation-api/utils/control-m.services.provision-9.18.3.jar into /home/ec2-user/.ctm/control-m.services.provision-9.18.3.jar
 info:    6MB/6MB precent: 100%
-debug:   starting command: /bin/java -jar /home/ec2-user/.ctm/control-m.services.provision-9.18.3.jar -image "" -server https://localhost:8443/automation-api -action setup -environment workbench -ctms "workbench" -name "virt:cb850779b6a9" -port "" -cert 0 -file ""
+debug:   starting command: /bin/java -jar /home/ec2-user/.ctm/control-m.services.provision-9.18.3.jar -image "" -server https://localhost:8443/automation-api -action setup -environment workbench -ctms "workbench" -name "virt:fcdb3008317b" -port "7751" -cert 0 -file "/tmp/provision.json"
 info:    Making SSL trust all certificates and all hostnames
-info:    setting server to agent port: 7178
+info:    setting server to agent port: 7751
 info:    setting agent to server port: 7005
-info:    setting agent name (alias): virt:cb850779b6a9
+info:    setting agent name (alias): virt:fcdb3008317b
 info:    setting primary Control-M Server: localhost
 info:    setting authorized Control-M Server host
 info:    setting agent communication type to persistent
 info:    agent configuration ended. restarting agent
 info:    adding newly active agent to Control-M Server
-error:   Error setting up the image
-error:    Agent virt:cb850779b6a9 was added but is not available (ping timeout). Check firewall settings for the server to agent port '7178' and agent to server port '7005'. For additional options refer to the Control-M documentation page 'Persistent connection parameters' (rc=160) (73)
-debug:   setup failed: exit code: 73 for '/bin/java -jar /home/ec2-user/.ctm/control-m.services.provision-9.18.3.jar -image "" -server https://localhost:8443/automation-api -action setup -environment workbench -ctms "workbench" -name "virt:cb850779b6a9" -port "" -cert 0 -file ""'
-add or create a controlm hostgroup [appgroup01] with controlm agent [virt:cb850779b6a9]
+info:    agent setup completed successfully
+info:    update the agent's control modules definition
+info:    exit code: 0
+info:    setup succeeded
+```
+
+Run in the background
+```
+docker run -d --name=ctrlm-agent --net host -v ~/.kube:/home/ec2-user/.kube:z -e CTM_ENV=workbench -e CTM_SERVER=workbench -e CTM_HOSTGROUP=appgroup01 -e CTM_AGENT_PORT=7751 quay.io/eformat/controlm:latest
+```
+
+Test Locally
+```
+# check logs
+docker logs ctrlm-agent -f
+
+# get agent id
+AGENT=virt:fcdb3008317b
+
+# ping agent 
+ctm config server:agent::ping workbench $AGENT
 {
-  "message": "Successfully added agent virt:cb850779b6a9 to hostgroup appgroup01 on workbench",
-  "agents": [
-    {
-      "host": "virt:cb850779b6a9"
-    }
-  ]
+  "message": "Agent virt:fcdb3008317b is available"
 }
+
+# Run simple kube job using runJob.py (mounted local kube config should be valid)
+sed -i -e "s|        \"Host\" : \"virt:.*\"|        \"Host\" : \"$AGENT\"|g" SampleKubeJob.json
+
+# runs job in default namespace
+ctm run SampleKubeJob.json
 ```
 
-Run on the background
-```
-docker run -d --net host -v ~/.kube:/usr/src/app/.kube:z -e CTM_ENV=workbench -e CTM_SERVER=workbench -e CTM_HOSTGROUP=appgroup01 controlm:latest
-```
-
-#### Push to your registry
+#### Push image to your registry
 
 ```
-docker tag controlm:latest quay.io/eformat/controlm:latest
-docker push quay.io/eformat/controlm:latest
+make docker-push
 ```
 
 ## OpenShift
@@ -201,9 +213,9 @@ metadata:
   name: controlm-agent
   namespace: controlm-agent
 rules:
-  - apiGroups: [“”, “batch”, “extensions”, “apps”]
-    resources: [“*”]
-    verbs: [“*”]
+  - apiGroups: ["", "batch", "extensions", "apps"]
+    resources: ["*"]
+    verbs: ["*"]
 EOF
 
 oc create -f - <<EOF
@@ -238,7 +250,7 @@ oc adm policy add-scc-to-user privileged -z controlm-agent -n controlm-agent
 # all nodes in cluster
 oc label nodes --all controlm=true
 # single node for testing
-oc label node ip-10-0-169-162.ap-southeast-1.compute.internal controlm=true
+oc label node ip-10-0-169-219.ap-southeast-1.compute.internal controlm=true
 ```
 
 ### Create DaemonSet
@@ -272,7 +284,7 @@ spec:
         securityContext:
           privileged: true
         ports:
-        - containerPort: 7317
+        - containerPort: 7751
           name: "ctm"
           protocol: TCP
         env:
@@ -283,7 +295,7 @@ spec:
         - name: CTM_HOSTGROUP
           value: "appgroup01"
         - name: CTM_AGPORT
-          value: "7317"
+          value: "7751"
         image: quay.io/eformat/controlm:latest
         imagePullPolicy: IfNotPresent
         terminationGracePeriodSeconds: 30
@@ -319,14 +331,14 @@ socat tcp-listen:7005,reuseaddr,fork tcp:localhost:10005 &
 ```
 control-m pod
 ```
-oc rsh controlm-agent-kcq55
+oc rsh $(oc get pods -o name -l name=controlm-agent)
 socat tcp-listen:8443,reuseaddr,fork tcp:host.me:9443 &
 socat tcp-listen:7005,reuseaddr,fork tcp:host.me:7005 &
 ```
 
 Test
 ```
-oc rsh controlm-agent-kcq55
+oc rsh $(oc get pods -o name -l name=controlm-agent)
 sh-4.2$ ctm session login -e workbench
 {
   "username": "workbench",
@@ -334,6 +346,8 @@ sh-4.2$ ctm session login -e workbench
   "version": "9.18.3"
 }
 ```
+
+
 
 ### Links
 
