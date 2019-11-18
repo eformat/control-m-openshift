@@ -4,6 +4,8 @@ Installing BMC Control-M agent in OpenShift. Test against BMC Control-M Workbenc
 
 Internet connectivity required (BMC agents download from aws s3).
 
+![kube-ctrl-m](images/kube-ctrl-m.png)
+
 ### Installing the Control-M Workbench
 
 See: https://docs.bmc.com/docs/automation-api/919/installation-817914518.html
@@ -310,7 +312,7 @@ So, because the control-m agent is configured to connect to the workbench runnin
 
 ```
 ---------------------------------                               ----------------------------      -------------------------
-| Ctr-M OVA (running on laptop)ctm config server:agent::delete workbench controlm-agent-kcq55: | --- (ssh RemoteForward) --->  | Internet Accessible Host | <--- | Pod (control-m agent) |
+| Ctr-M OVA (running on laptop) | --- (ssh RemoteForward) --->  | Internet Accessible Host | <--- | Pod (control-m agent) |
 ---------------------------------                               ----------------------------      -------------------------
 ```
 
@@ -347,7 +349,43 @@ sh-4.2$ ctm session login -e workbench
 }
 ```
 
+### OpenShift manual provision
 
+In agent pod
+```
+oc rsh $(oc get pods -o name -l name=controlm-agent)
+
+CID=$(cat /proc/1/cgroup | grep 'docker/' | tail -1 | sed 's/^.*\///' | cut -c 1-12)
+AGHOST=$(hostname)
+ALIAS=$AGHOST:$CID
+CTM_SERVER=workbench
+CTM_HOSTGROUP=appgroup01
+CTM_AGENT_PORT=7751
+
+cat <<EOF > /tmp/provision.json
+{
+    "connectionInitiator": "AgentToServer"
+}
+EOF
+
+socat tcp-listen:8443,reuseaddr,fork tcp:eformat.me:9443 &
+socat tcp-listen:7005,reuseaddr,fork tcp:eformat.me:7005 &
+
+ctm provision setup $CTM_SERVER $ALIAS $CTM_AGENT_PORT -f /tmp/provision.json
+```
+
+From laptop:
+```
+AGENT=$(oc get pods -o name -l name=controlm-agent)
+AGENT=${AGENT#pod/}:
+
+ctm config server:agent::ping workbench $AGENT
+
+sed -i -e "s|        \"Host\" : \"controlm-agent.*\"|        \"Host\" : \"$AGENT\"|g" SampleKubeJob.json
+ctm run SampleKubeJob.json
+
+ctm config server:agent::delete workbench $AGENT
+```
 
 ### Links
 
