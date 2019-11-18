@@ -291,7 +291,7 @@ So, because the control-m agent is configured to connect to the workbench runnin
 
 ```
 ---------------------------------                               ----------------------------      -------------------------
-| Ctr-M OVA (running on laptop) | --- (ssh RemoteForward) --->  | Internet Accessible Host | <--- | Pod (control-m agent) |
+| Ctr-M OVA (running on laptop)ctm config server:agent::delete workbench controlm-agent-kcq55: | --- (ssh RemoteForward) --->  | Internet Accessible Host | <--- | Pod (control-m agent) |
 ---------------------------------                               ----------------------------      -------------------------
 ```
 

@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: srv01-job
+spec:
+  template:
+    metadata:
+      name: srv01
+    spec:
+      containers:
+      - name: srv01
+        image: quay.io/eformat/appimage:latest
+        imagePullPolicy: Always
+        env:
+        - name: LOOPCTR
+          value: "10"
+        - name: STIME
+          value: "5"
+      restartPolicy: Never
