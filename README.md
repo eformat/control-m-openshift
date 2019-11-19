@@ -6,6 +6,22 @@ Internet connectivity required (BMC agents download from aws s3).
 
 ![kube-ctrl-m](images/kube-ctrl-m.png)
 
+High Level Architecture
+
+```
++-----------+
+| Control-M |
+|   Server  |
++-----------+
+      ^
+comms | register
+      |                        +--------+
++-----------+                  |  Kube  |--+
+| Agent Pod |---- runJob.py -->|  Jobs  |  |
++-----------+                  +--------+  |
+                                    +------+
+```
+
 ### Installing the Control-M Workbench
 
 See: https://docs.bmc.com/docs/automation-api/919/installation-817914518.html
