@@ -384,8 +384,8 @@ cat <<EOF > /tmp/provision.json
 }
 EOF
 
-socat tcp-listen:8443,reuseaddr,fork tcp:eformat.me:9443 &
-socat tcp-listen:7005,reuseaddr,fork tcp:eformat.me:7005 &
+socat tcp-listen:8443,reuseaddr,fork tcp:host.me:9443 &
+socat tcp-listen:7005,reuseaddr,fork tcp:host.me:7005 &
 
 ctm provision setup $CTM_SERVER $ALIAS $CTM_AGENT_PORT -f /tmp/provision.json
 ```
