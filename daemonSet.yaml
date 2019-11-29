@@ -1,0 +1,43 @@
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: controlm-agent
+  namespace: controlm-agent
+spec:
+  template:
+    metadata:
+      labels:
+        name: controlm-agent
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: controlm
+                operator: Exists
+      serviceAccount: controlm-agent
+      serivceAccountName: controlm-agent
+      securityContext:
+        privileged: true
+      containers:
+      - name: ctmagent-container
+        securityContext:
+          privileged: true
+        ports:
+        - containerPort: 7750
+          name: "ctm"
+          protocol: TCP
+        env:
+        - name: CTM_ENV
+          value: "workbench"
+        - name: CTM_SERVER
+          value: "workbench"
+        - name: CTM_HOSTGROUP
+          value: "appgroup01"
+        - name: CTM_AGENT_PORT
+          value: "7750"
+        image: quay.io/eformat/controlm:latest
+        imagePullPolicy: Always
+        terminationGracePeriodSeconds: 30
