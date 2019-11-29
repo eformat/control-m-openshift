@@ -395,6 +395,7 @@ From laptop:
 AGENT=$(oc get pods -o name -l name=controlm-agent)
 AGENT=${AGENT#pod/}:
 
+ctm session login -e workbench
 ctm config server:agent::ping workbench $AGENT
 
 sed -i -e "s|        \"Host\" : \"controlm-agent.*\"|        \"Host\" : \"$AGENT\"|g" SampleKubeJob.json
