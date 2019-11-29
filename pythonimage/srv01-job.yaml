@@ -14,7 +14,7 @@ spec:
         imagePullPolicy: Always
         env:
         - name: LOOPCTR
-          value: "10"
-        - name: STIME
           value: "5"
+        - name: STIME
+          value: "3"
       restartPolicy: Never

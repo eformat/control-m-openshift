@@ -317,19 +317,6 @@ spec:
         image: quay.io/eformat/controlm:latest
         imagePullPolicy: Always
         terminationGracePeriodSeconds: 30
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: controlm-agent
-spec:
-  selector:
-    name: controlm-agent
-  ports:
-    - protocol: TCP
-      port: 7750
-      targetPort: 7750
-  type: LoadBalancer
 EOF
 ```
 
@@ -419,6 +406,10 @@ ctm config server:agent::delete workbench $AGENT
 while true; do ctm config server:agent::ping workbench $AGENT; sleep 2; done
 ctm config server:hostgroups::get workbench
 ctm config server:agents::get workbench
+
+# useful scripts
+./watchAgent.sh
+./submitJob.sh
 ```
 
 ### Links

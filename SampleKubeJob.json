@@ -2,7 +2,7 @@
     "Defaults" : {
         "Application" : "SampleKubeJob",
         "RunAs" : "ec2-user",
-        "Host" : "controlm-agent-q9bkd:"
+        "Host" : "controlm-agent-8bsvr:"
     },
 
     "SampleKubeJobFlow": {
