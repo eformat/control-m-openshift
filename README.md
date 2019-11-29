@@ -274,6 +274,11 @@ oc label node ip-10-0-169-219.ap-southeast-1.compute.internal controlm=true
 ### Create DaemonSet
 
 ```
+oc apply -f daemonSet.yaml
+```
+
+OR
+```
 oc create -f - <<EOF
 apiVersion: extensions/v1beta1
 kind: DaemonSet
