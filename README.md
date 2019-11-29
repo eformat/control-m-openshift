@@ -302,7 +302,7 @@ spec:
         securityContext:
           privileged: true
         ports:
-        - containerPort: 7751
+        - containerPort: 7750
           name: "ctm"
           protocol: TCP
         env:
@@ -312,11 +312,24 @@ spec:
           value: "workbench"
         - name: CTM_HOSTGROUP
           value: "appgroup01"
-        - name: CTM_AGPORT
-          value: "7751"
+        - name: CTM_AGENT_PORT
+          value: "7750"
         image: quay.io/eformat/controlm:latest
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: controlm-agent
+spec:
+  selector:
+    name: controlm-agent
+  ports:
+    - protocol: TCP
+      port: 7750
+      targetPort: 7750
+  type: LoadBalancer
 EOF
 ```
 
@@ -401,7 +414,11 @@ ctm config server:agent::ping workbench $AGENT
 sed -i -e "s|        \"Host\" : \"controlm-agent.*\"|        \"Host\" : \"$AGENT\"|g" SampleKubeJob.json
 ctm run SampleKubeJob.json
 
+# useful commands
 ctm config server:agent::delete workbench $AGENT
+while true; do ctm config server:agent::ping workbench $AGENT; sleep 2; done
+ctm config server:hostgroups::get workbench
+ctm config server:agents::get workbench
 ```
 
 ### Links
