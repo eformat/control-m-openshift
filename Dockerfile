@@ -79,6 +79,7 @@ RUN pip3 install --user --no-cache-dir -r /home/ec2-user/requirements.txt
 # FIXME put on separate volume - for now
 COPY pythonimage/runJob.py /home/ec2-user/
 COPY pythonimage/srv01-job.yaml /home/ec2-user/
+COPY pythonimage/srv02-job.yaml /home/ec2-user/
 #COPY MultiContainerSampleFlow.json /home/ec2-user/
 
 EXPOSE 7000-8000

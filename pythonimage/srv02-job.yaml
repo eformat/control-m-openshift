@@ -1,18 +1,18 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: srv01-job
+  name: srv02-job
   namespace: controlm-agent
-  generateName: srv01-job-
+  generateName: srv02-job-
 spec:
-  completions: 1
-  parallelism: 1
+  completions: 2
+  parallelism: 2
   template:
     metadata:
-      name: srv01
+      name: srv02
     spec:
       containers:
-      - name: srv01
+      - name: srv02
         image: quay.io/eformat/appimage:latest
         imagePullPolicy: Always
         env:
